@@ -1,0 +1,150 @@
+#include <IRremote.h>
+#include<Servo.h> //loading the servo library
+Servo servoA;
+Servo servoB;//creating object as myservo
+int posA=0;
+int posB=0;
+int redLed = 0;
+int yellowLed = 1;
+int greenLed = 2;
+int blueLed = 3;
+int RECV_PINa = 4;
+int RECV_PINb = 5;
+int RECV_PINc = 6;
+int RECV_PINd = 7;
+int trigPinA = 10;    // TRIG pin
+int echoPinA = 11;
+int trigPinB = 12;    // TRIG pin
+int echoPinB = 13;
+IRrecv irrecvA(RECV_PINa);
+IRrecv irrecvB(RECV_PINb);
+IRrecv irrecvC(RECV_PINc);
+IRrecv irrecvD(RECV_PINd);
+decode_results resultsA;
+decode_results resultsB;
+decode_results resultsC;
+decode_results resultsD;
+float durationA, distanceA,durationB, distanceB;
+void setup()
+{
+  servoA.attach(9);
+  servoB.attach(8);
+  pinMode(redLed, OUTPUT);
+  pinMode(yellowLed, OUTPUT);
+  pinMode(greenLed, OUTPUT);
+  pinMode(blueLed, OUTPUT);
+  Serial.begin(9600);
+  Serial.println("Enabling IRin");
+  irrecvA.enableIRIn(); 
+  irrecvB.enableIRIn();
+  irrecvC.enableIRIn();
+  irrecvD.enableIRIn();
+  Serial.println("Enabled IRin");
+ pinMode(trigPinA, OUTPUT);
+  // configure the echo pin to input mode
+  pinMode(echoPinA, INPUT);
+   pinMode(trigPinB, OUTPUT);
+  // configure the echo pin to input mode
+  pinMode(echoPinB, INPUT);
+}
+
+void loop() 
+{
+  digitalWrite(trigPinA, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigPinA, LOW);
+  durationA = pulseIn(echoPinA, HIGH);
+  distanceA = 0.017 * durationA;
+  if(distanceA<=70)
+  {
+    for(posA=0; posA<=90;posA+=1){
+servoA.write(posA); //writing the angle of movement in deg
+delay(15); //delay of 15 ms
+}	
+    delay(3000);
+for(posA=90;posA>=0;posA-=1)
+{
+servoA.write(posA);
+delay(15); 
+}
+  }
+
+  if (irrecvA.decode(&resultsA)) 
+  {
+    unsigned int valueA = resultsA.value;
+    Serial.println(valueA);
+    switch (valueA) 
+    {
+      case 2295:
+      {
+      	digitalWrite(A4, HIGH);
+      }
+      
+      case 12495:
+      	digitalWrite(A4, LOW);
+      break;
+    }
+ 
+ if (irrecvB.decode(&resultsB)) 
+ {
+    unsigned int valueB = resultsB.value; 
+    Serial.println(valueB);
+    switch (valueB) 
+    {     
+      case 34935:
+      	digitalWrite(A5, HIGH);
+      case 18615:
+      	digitalWrite(A5, LOW);
+    } 
+if (irrecvC.decode(&resultsC)) 
+{
+    unsigned int valueC = resultsC.value;
+    Serial.println(valueC);
+    switch (valueC) 
+    {      
+      case 10455:
+      	digitalWrite(greenLed, HIGH);
+      case 94309:
+      	digitalWrite(greenLed, LOW);
+    }
+
+ if (irrecvD.decode(&resultsD)) 
+ {
+    unsigned int valueD = resultsD.value;
+    Serial.println(valueD);
+    switch (valueD)
+    {     
+      case 26775:
+      	digitalWrite(blueLed, HIGH);
+      case 6375:
+      	digitalWrite(blueLed, LOW);
+
+    } 
+   irrecvD.resume();
+  } 
+   irrecvC.resume();
+  } 
+    irrecvB.resume();
+  }
+ irrecvA.resume();
+ }
+    digitalWrite(trigPinB, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigPinB, LOW);
+  durationB = pulseIn(echoPinB, HIGH);
+  distanceB = 0.017 * durationB;
+  if(distanceB<=70)
+  {
+    for(posB=0; posB<=90;posB+=1){
+servoB.write(posB); //writing the angle of movement in deg
+delay(15); //delay of 15 ms
+}	
+    delay(3000);
+for(posB=90;posB>=0;posB-=1)
+{
+servoB.write(posB);
+delay(15); 
+}
+  }
+
+}
